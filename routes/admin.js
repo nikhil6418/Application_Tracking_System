@@ -29,18 +29,24 @@ router.post("/updatePassword/", adminController.updatePassword);
 
 router.get('/', async function (req, res, next) {
   if (req.user) {
-    // var data = await JobSchema.find({status:"open"});
-    var data = await JobSchema.find();
-    var totalJobs = await JobSchema.count();
-    var totalApplications = await JobData.count();
-    res.render('admin/admin',
-      {
-        name: req.user.name,
-        usertype: req.user.usertype,
-        Jobdata: data,
-        totalJobs: totalJobs,
-        totalApplications: totalApplications
-      });
+    if(req.user.usertype){
+          // var data = await JobSchema.find({status:"open"});
+      var data = await JobSchema.find();
+      var totalJobs = await JobSchema.count();
+      var totalApplications = await JobData.count();
+      res.render('admin/admin',
+        {
+          name: req.user.name,
+          usertype: req.user.usertype,
+          Jobdata: data,
+          totalJobs: totalJobs,
+          totalApplications: totalApplications
+        });
+    }else{
+      req.flash('errors', { msg: 'You dont have access to admin panel' });
+      return res.redirect('/');
+
+    }
   }
   else {
     res.redirect('/admin/login');

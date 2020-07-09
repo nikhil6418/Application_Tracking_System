@@ -262,13 +262,19 @@ exports.showJob = async (req, res) => {
     //     { status: { $eq: 'closed' } }
     //   ]
     // });
-    var data = await JobSchema.find();
-    res.render('admin/showJob',
+    if(req.user.usertype){
+      var data = await JobSchema.find();
+      res.render('admin/showJob',
       {
         name: req.user.name,
         usertype: req.user.usertype,
         Jobdata: data
       });
+    }else{
+      req.flash('errors', { msg: 'You dont have access to admin panel' });
+      return res.redirect('/');
+    }
+    
   }
   else {
     res.redirect('/admin/login');
@@ -327,16 +333,25 @@ exports.postJobForm = async (req, res) => {
   // req.flash('success', { msg: 'Job Successfully posted' });
   res.redirect('/admin');
 
-
 };
 
 exports.getJobForm = (req, res) => {
-  if (req.user.usertype == "admin") {
-    res.render('admin/jobForm', {
-      name: req.user.name,
-      usertype: req.user.usertype
-    });
-  };
+  if (req.user) {
+    if(req.user.usertype == "admin"){
+        res.render('admin/jobForm', {
+          name: req.user.name,
+          usertype: req.user.usertype
+        });
+    }else{
+      req.flash('errors', { msg: 'You dont have access to this section' });
+      return res.redirect('/');
+
+    }
+  }
+  else {
+    res.redirect('/admin/login');
+
+  }
 };
 
 exports.showChart = (req, res) => {
